@@ -9,11 +9,12 @@ const InstallPWA = () => {
 
     useEffect(() => {
         const handler = (e) => {
-            // Prevent the mini-infobar from appearing on mobile
             e.preventDefault();
-            // Stash the event so it can be triggered later.
             setDeferredPrompt(e);
-            // Show the install promotion
+            // Check if the app is already installed
+            if (window.matchMedia('(display-mode: standalone)').matches) {
+                return;
+            }
             setIsVisible(true);
         };
 
@@ -25,33 +26,21 @@ const InstallPWA = () => {
     }, []);
 
     const handleInstallClick = async () => {
-        // Hide our user interface that shows our A2HS button
         setIsVisible(false);
-        if (!deferredPrompt) {
-            return;
-        }
-        // Show the prompt
+        if (!deferredPrompt) return;
         deferredPrompt.prompt();
-        // Wait for the user to respond to the prompt
         await deferredPrompt.userChoice;
-        // We've used the prompt, and can't use it again, throw it away
         setDeferredPrompt(null);
     };
 
-    const handleCloseClick = () => {
-        setIsVisible(false);
-    };
-
-    if (!isVisible) {
-        return null;
-    }
+    if (!isVisible) return null;
 
     return (
         <Paper
             elevation={4}
             sx={{
                 position: 'fixed',
-                bottom: { xs: 80, sm: 30 }, // Position above the navbar
+                bottom: { xs: 80, sm: 30 },
                 left: '50%',
                 transform: 'translateX(-50%)',
                 width: '90%',
@@ -60,14 +49,16 @@ const InstallPWA = () => {
                 p: 2,
                 backgroundColor: 'background.paper',
                 borderRadius: '16px',
+                border: '1px solid',
+                borderColor: (theme) => theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
                 display: 'flex',
                 alignItems: 'center',
                 animation: 'slideUp 0.5s ease-out forwards',
                 '@keyframes slideUp': { 'from': { transform: 'translate(-50%, 100px)', opacity: 0 }, 'to': { transform: 'translate(-50%, 0)', opacity: 1 } }
             }}
         >
-            <IconButton onClick={handleCloseClick} size="small" sx={{ position: 'absolute', top: 8, left: 8 }}>
-                <CloseIcon />
+            <IconButton onClick={() => setIsVisible(false)} size="small" sx={{ position: 'absolute', top: 8, left: 8 }}>
+                <CloseIcon fontSize="small" />
             </IconButton>
             <Box flexGrow={1}>
                 <Typography sx={{ fontWeight: 'bold' }}>
@@ -81,6 +72,8 @@ const InstallPWA = () => {
                 variant="contained"
                 onClick={handleInstallClick}
                 startIcon={<SystemUpdateAltIcon />}
+                size="small"
+                sx={{ ml: 2, flexShrink: 0 }}
             >
                 نصب
             </Button>
@@ -89,3 +82,4 @@ const InstallPWA = () => {
 };
 
 export default InstallPWA;
+

@@ -13,14 +13,14 @@ import { usePriceData } from '../hooks/usePriceData';
 import { fetchMarketNews } from '../services/api';
 
 const NewsCardSkeleton = () => (
-    <Card elevation={0}>
+    <Paper elevation={0}>
         <Box sx={{p: 2}}>
             <Skeleton variant="text" height={30} />
             <Skeleton variant="text" width="40%" sx={{mb: 1}}/>
             <Skeleton variant="text" />
             <Skeleton variant="text" width="80%"/>
         </Box>
-    </Card>
+    </Paper>
 )
 
 const News = () => {
@@ -38,14 +38,14 @@ const News = () => {
       <Stack spacing={2}>
         {loading ? [...Array(5)].map((_, i) => <NewsCardSkeleton key={i}/>) :
             news.map((article) => (
-              <Card key={article.id} elevation={0}>
-                <CardActionArea component={Link} href={article.url} target="_blank" rel="noopener noreferrer" sx={{p: 2}}>
+              <Paper key={article.id} elevation={0}>
+                <CardActionArea component={Link} href={article.url} target="_blank" rel="noopener noreferrer" sx={{p: 2, borderRadius: '16px'}}>
                     <Typography variant="h6" component="h2" gutterBottom sx={{fontWeight: 600}}>{article.headline}</Typography>
                     <Typography variant="body2" color="text.secondary" gutterBottom>
                       {article.source} - {new Date(article.datetime * 1000).toLocaleDateString('fa-IR')}
                     </Typography>
                 </CardActionArea>
-              </Card>
+              </Paper>
             ))
         }
       </Stack>

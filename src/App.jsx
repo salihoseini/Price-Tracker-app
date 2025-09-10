@@ -29,7 +29,7 @@ const getDesignTokens = (mode) => ({
           background: { default: '#F8F9FD', paper: '#FFFFFF' },
           text: { primary: '#1A202C', secondary: '#718096' },
         } : {
-          primary: { main: '#4A902' },
+          primary: { main: '#4A90E2' }, // CORRECTED COLOR CODE
           background: { default: '#0A0F19', paper: '#131826' },
           text: { primary: '#FFFFFF', secondary: '#A0AEC0' },
         }),
