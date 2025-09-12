@@ -4,6 +4,8 @@ import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  // This is the new base path for your application.
+  base: '/templates/public/', 
   plugins: [
     react(),
     VitePWA({
@@ -41,8 +43,8 @@ export default defineConfig({
         theme_color: '#131826',
         background_color: '#131826',
         display: 'standalone',
-        scope: '/',
-        start_url: '/',
+        scope: '/templates/public/', // Ensure PWA scope matches the base
+        start_url: '/templates/public/', // Ensure PWA start URL matches the base
         orientation: 'portrait',
         icons: [
           {
