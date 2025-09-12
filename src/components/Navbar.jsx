@@ -1,37 +1,68 @@
 import React from 'react';
-import { Box, IconButton, Typography, Stack } from '@mui/material';
+import { Box, Typography, Stack } from '@mui/material';
+import { alpha } from '@mui/material/styles';
+import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
 import HomeIcon from '@mui/icons-material/Home';
-import NewspaperIcon from '@mui/icons-material/Newspaper';
+import InfoIcon from '@mui/icons-material/Info';
 import SettingsIcon from '@mui/icons-material/Settings';
 
+
 // --- Single Navigation Item Component ---
-const NavItem = ({ icon, label, isActive, onClick }) => (
-    <IconButton
+const NavItem = ({ icon, activeIcon, label, isActive, onClick }) => (
+    <Box
         onClick={onClick}
         sx={{
+            flex: 1,
+            display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            borderRadius: '12px',
+            justifyContent: 'center',
+            py: 1,
+            cursor: 'pointer',
+            borderRadius: '16px',
             color: isActive ? 'primary.main' : 'text.secondary',
-            transition: 'color 0.2s ease-in-out',
-            p: 1,
-            width: 70,
-            height: 60
+            transition: 'color 0.2s ease-in-out, background-color 0.2s ease-in-out',
+            position: 'relative',
+            '&:hover': {
+                backgroundColor: theme => alpha(theme.palette.primary.main, 0.05),
+            }
         }}
     >
-        {icon}
-        <Typography variant="caption" sx={{ fontWeight: isActive ? 'bold' : 'medium', mt: 0.5 }}>
+        {isActive ? activeIcon : icon}
+        <Typography
+            variant="caption"
+            sx={{
+                fontWeight: isActive ? 'bold' : 'medium',
+                mt: 0.5,
+                transition: 'font-weight 0.2s ease-in-out'
+            }}
+        >
             {label}
         </Typography>
-    </IconButton>
+         {isActive && (
+            <Box
+                sx={{
+                    position: 'absolute',
+                    bottom: -10,
+                    width: '4px',
+                    height: '4px',
+                    borderRadius: '50%',
+                    backgroundColor: 'primary.main',
+                    transition: 'opacity 0.3s ease-in-out',
+                }}
+            />
+        )}
+    </Box>
 );
 
 // --- Main Full-Width Navbar Component ---
 const Navbar = ({ activePage, setPage }) => {
     const navItems = [
-        { name: 'news', icon: <NewspaperIcon />, label: 'اخبار' },
-        { name: 'dashboard', icon: <HomeIcon />, label: 'بازارها' },
-        { name: 'settings', icon: <SettingsIcon />, label: 'تنظیمات' },
+        { name: 'settings', icon: <SettingsOutlinedIcon />, activeIcon: <SettingsIcon />, label: 'تنظیمات' },
+        { name: 'dashboard', icon: <HomeOutlinedIcon />, activeIcon: <HomeIcon />, label: 'بازارها' },
+        { name: 'about', icon: <InfoOutlinedIcon />, activeIcon: <InfoIcon />, label: 'درباره' },
     ];
 
     return (
@@ -41,30 +72,33 @@ const Navbar = ({ activePage, setPage }) => {
                 position: 'fixed',
                 bottom: 0,
                 left: 0,
-                right: 0, // Stretches the component full-width
+                right: 0,
                 zIndex: 1000,
-                backgroundColor: (theme) => `${theme.palette.background.paper}e0`, // More opaque
-                backdropFilter: 'blur(15px)',
+                backgroundColor: (theme) => alpha(theme.palette.background.paper, 0.85),
+                backdropFilter: 'blur(10px)',
                 borderTop: '1px solid',
-                borderColor: (theme) => theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+                borderColor: (theme) => theme.palette.divider,
+                boxShadow: (theme) => `0 -1px 12px ${theme.palette.mode === 'dark' ? 'rgba(0,0,0,0.2)' : 'rgba(0,0,0,0.08)'}`,
+                pb: 'env(safe-area-inset-bottom)', // Safe area for iPhones
             }}
         >
             <Stack
                 direction="row"
-                justifyContent="space-around" // Evenly distribute items
+                justifyContent="space-around"
                 alignItems="center"
                 sx={{
                     height: 65,
-                    paddingBottom: '10px', // For devices with home bar
+                    px: 1,
                 }}
             >
                 {navItems.map((item) => (
                     <NavItem
                         key={item.name}
                         icon={item.icon}
+                        activeIcon={item.activeIcon}
                         label={item.label}
                         isActive={activePage === item.name}
-                        onClick={() => setPage({ name: item.name, symbol: null })}
+                        onClick={() => setPage(item.name)}
                     />
                 ))}
             </Stack>

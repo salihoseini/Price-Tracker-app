@@ -1,76 +1,59 @@
-import React, { useState, useMemo } from 'react';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
+import React, { useState, useMemo, useEffect } from 'react';
+import { ThemeProvider } from '@mui/material/styles';
 import { CacheProvider } from '@emotion/react';
-import createCache from '@emotion/cache';
-import { prefixer } from 'stylis';
-import rtlPlugin from 'stylis-plugin-rtl';
 import CssBaseline from '@mui/material/CssBaseline';
 import { Box } from '@mui/material';
 
-import Dashboard from './pages/Dashboard';
-import AssetDetail from './pages/AssetDetail';
-import News from './pages/News';
-import Settings from './pages/Settings';
-import Navbar from './components/Navbar';
-import Header from './components/Header';
-import InstallPWA from './components/InstallPWA'; // Import the new component
+import { createMuiTheme, createRtlCache } from './theme.js';
+import Dashboard from './pages/Dashboard.jsx';
+import AssetDetail from './pages/AssetDetail.jsx';
+import About from './pages/About.jsx'; // Replaced News with About
+import Settings from './pages/Settings.jsx'; // Corrected the import path
+import Navbar from './components/Navbar.jsx';
+import Header from './components/Header.jsx';
+import InstallPWA from './components/InstallPWA.jsx';
 
-const cacheRtl = createCache({
-  key: 'muirtl',
-  stylisPlugins: [prefixer, rtlPlugin],
-});
-
-const getDesignTokens = (mode) => ({
-  direction: 'rtl',
-  palette: {
-    mode,
-    ...(mode === 'light' ? {
-          primary: { main: '#3861FB' },
-          background: { default: '#F8F9FD', paper: '#FFFFFF' },
-          text: { primary: '#1A202C', secondary: '#718096' },
-        } : {
-          primary: { main: '#4A90E2' }, // CORRECTED COLOR CODE
-          background: { default: '#0A0F19', paper: '#131826' },
-          text: { primary: '#FFFFFF', secondary: '#A0AEC0' },
-        }),
-    success: { main: '#0ECB81' },
-    error: { main: '#F6465D' },
-    warning: { main: '#F5A623' },
-  },
-  typography: { fontFamily: "'Vazirmatn', sans-serif", h4: { fontWeight: 700 }, h5: { fontWeight: 600 } },
-  components: {
-    MuiPaper: { styleOverrides: { root: { backgroundImage: 'none', borderRadius: '16px', border: 'none' } } },
-    MuiBottomNavigation: {
-        styleOverrides: {
-             root: ({ theme }) => ({
-                background: theme.palette.background.paper,
-                borderTop: `1px solid ${theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)'}`,
-                height: 65,
-                paddingBottom: '10px'
-            })
-        }
-    }
-  },
-});
+const cacheRtl = createRtlCache();
 
 function App() {
-  document.body.dir = 'rtl';
+  useEffect(() => {
+    document.body.dir = "rtl";
+  }, []);
+
   const [page, setPage] = useState({ name: 'dashboard', symbol: null });
-  const [mode, setMode] = useState('dark');
+  const [mode, setMode] = useState(() => {
+    const savedMode = localStorage.getItem('themeMode');
+    return savedMode || 'dark';
+  });
   const [connectionStatus, setConnectionStatus] = useState('online');
 
-  const toggleTheme = () => setMode((prev) => (prev === 'light' ? 'dark' : 'light'));
-  const theme = useMemo(() => createTheme(getDesignTokens(mode)), [mode]);
+  const toggleTheme = () => {
+    setMode((prevMode) => {
+      const newMode = prevMode === 'light' ? 'dark' : 'light';
+      localStorage.setItem('themeMode', newMode);
+      return newMode;
+    });
+  };
+
+  const theme = useMemo(() => createMuiTheme(mode), [mode]);
+
+  // Navigation functions
+  const navigateTo = (pageName) => setPage({ name: pageName, symbol: null });
   const navigateToAsset = (symbol) => setPage({ name: 'assetDetail', symbol });
   const goBackToDashboard = () => setPage({ name: 'dashboard', symbol: null });
 
   const renderPage = () => {
     switch (page.name) {
-      case 'dashboard': return <Dashboard navigateToAsset={navigateToAsset} setConnectionStatus={setConnectionStatus} />;
-      case 'assetDetail': return <AssetDetail symbol={page.symbol} goBack={goBackToDashboard} />;
-      case 'news': return <News />;
-      case 'settings': return <Settings mode={mode} toggleTheme={toggleTheme} />;
-      default: return <Dashboard navigateToAsset={navigateToAsset} setConnectionStatus={setConnectionStatus} />;
+      case 'dashboard':
+        return <Dashboard navigateToAsset={navigateToAsset} setConnectionStatus={setConnectionStatus} />;
+      case 'assetDetail':
+        return <AssetDetail symbol={page.symbol} goBack={goBackToDashboard} />;
+      case 'about': // Changed from 'news' to 'about'
+        return <About />;
+      case 'settings':
+        return <Settings mode={mode} toggleTheme={toggleTheme} />;
+      default:
+        return <Dashboard navigateToAsset={navigateToAsset} setConnectionStatus={setConnectionStatus} />;
     }
   };
 
@@ -79,11 +62,11 @@ function App() {
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <Header connectionStatus={connectionStatus} />
-        <Box component="main" sx={{ pt: '80px', pb: '80px', px: { xs: 2, md: 3 } }}>
-            {renderPage()}
+        <Box component="main" sx={{ pt: '80px', pb: '80px', px: { xs: 2, md: 3 }, maxWidth: '1200px', margin: '0 auto' }}>
+          {renderPage()}
         </Box>
-        <Navbar activePage={page.name} setPage={setPage} />
-        <InstallPWA /> {/* Add the install component here */}
+        <Navbar activePage={page.name} setPage={navigateTo} />
+        <InstallPWA />
       </ThemeProvider>
     </CacheProvider>
   );
